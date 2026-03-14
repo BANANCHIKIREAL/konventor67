@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="256" height="256" fill="url(#gradient)"/>
+  
+  <!-- Main frame/border -->
+  <rect x="40" y="50" width="176" height="160" rx="16" fill="none" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Image content lines -->
+  <circle cx="80" cy="100" r="16" fill="white"/>
+  <path d="M 40 180 Q 80 130 140 160 T 220 120" stroke="white" stroke-width="10" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Arrow transformation indicator -->
+  <g transform="translate(150, 170)">
+    <path d="M -15 0 L 15 0 M 10 -5 L 15 0 L 10 5" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
