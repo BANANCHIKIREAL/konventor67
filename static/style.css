@@ -17,6 +17,11 @@
 
 #dropZone {
     transition: all 0.3s ease;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #dropZone.dragover {
@@ -46,45 +51,54 @@
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Responsive adjustments */
-@media (max-width: 1280px) {
-    .xl\:grid-cols-5 {
-        grid-template-columns: repeat(4, 1fr);
+/* Better button sizing for mobile */
+@media (max-width: 640px) {
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    button[type="submit"] {
+        padding: 12px 24px;
+        width: 100%;
+    }
+    
+    .format-option div p {
+        font-size: 0.65rem;
+    }
+    
+    .format-option div i {
+        font-size: 1rem;
+    }
+    
+    #dropZone {
+        min-height: 120px;
+        padding: 1rem;
+    }
+    
+    #dropZone i {
+        font-size: 2rem;
+    }
+    
+    .bg-white.rounded-lg {
+        padding: 1rem;
+    }
+    
+    .space-y-6 > * + * {
+        margin-top: 1rem;
     }
 }
 
-@media (max-width: 1024px) {
-    .lg\:grid-cols-4 {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    .xl\:grid-cols-5 {
-        grid-template-columns: repeat(3, 1fr);
+/* Tablet optimization */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .format-option div {
+        padding: 1.5rem 0.5rem;
     }
 }
 
-@media (max-width: 768px) {
-    .md\:grid-cols-3 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .lg\:grid-cols-4 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .xl\:grid-cols-5 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 480px) {
-    .grid-cols-2 {
-        grid-template-columns: 1fr;
-    }
-    .md\:grid-cols-3 {
-        grid-template-columns: 1fr;
-    }
-    .lg\:grid-cols-4 {
-        grid-template-columns: 1fr;
-    }
-    .xl\:grid-cols-5 {
-        grid-template-columns: 1fr;
+/* Desktop optimization */
+@media (min-width: 1025px) {
+    .format-option div {
+        padding: 1rem 0.75rem;
     }
 }
