@@ -5,11 +5,14 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 from PIL import Image
 import numpy as np
+
+# Try to import OpenCV for background removal
 try:
     import cv2
     HAS_BG_REMOVAL = True
 except ImportError:
     HAS_BG_REMOVAL = False
+    print("OpenCV not available - background removal disabled")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
