@@ -1,4 +1,22 @@
 document.addEventListener('DOMContentLoaded', function() {
+        // Tooltip for eraser icon (desktop only)
+        const eraserIcon = document.getElementById('eraserIcon');
+        if (eraserIcon) {
+            // Show tooltip only on desktop
+            eraserIcon.addEventListener('mouseenter', function() {
+                if (window.innerWidth > 1024) {
+                    eraserIcon.setAttribute('title', 'Удалить фон');
+                } else {
+                    eraserIcon.removeAttribute('title');
+                }
+            });
+            // Remove tooltip on mouseleave for mobile
+            eraserIcon.addEventListener('mouseleave', function() {
+                if (window.innerWidth <= 1024) {
+                    eraserIcon.removeAttribute('title');
+                }
+            });
+        }
     // Theme toggle
     const themeToggle = document.getElementById('themeToggle');
     const html = document.documentElement;

@@ -1,3 +1,20 @@
+/* Custom tooltip for eraser */
+.custom-tooltip {
+    opacity: 0;
+    transform: translateX(8px) translateY(-50%);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+}
+.group:hover .custom-tooltip {
+    opacity: 1;
+    transform: translateX(0) translateY(-50%);
+}
+@media (max-width: 1024px) {
+    .custom-tooltip {
+        display: none !important;
+    }
+}
 /* Custom styles for image converter */
 
 :root {
