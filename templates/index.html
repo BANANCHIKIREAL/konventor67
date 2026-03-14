@@ -1,3 +1,4 @@
+                <button id="bugReportBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors font-medium whitespace-nowrap transition-transform hover:scale-105 hover:shadow-lg"><i class="fas fa-bug mr-2"></i>Пожаловаться на баг</button>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -94,20 +95,20 @@
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div class="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <header class="text-center mb-8 sm:mb-12 relative">
-            <button id="themeToggle" class="absolute right-0 top-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition-colors">
-                <i class="fas fa-moon text-lg"></i>
-            </button>
-            <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2 sm:mb-4">
+            <div class="absolute right-0 top-0 flex gap-2">
+                <button id="themeToggle" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-lg transition-colors">
+                    <i class="fas fa-moon text-lg"></i>
+                </button>
+                <button id="bugReportBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors font-medium whitespace-nowrap"><i class="fas fa-bug mr-2"></i>Пожаловаться на баг</button>
+            </div>
+            <h1 class="text-2xl sm:text-4xl font-bold text-gray-800 mb-2 sm:mb-4 text-center">
                 <i class="fas fa-image mr-2"></i>Конвертер
             </h1>
             <p class="text-gray-600 text-sm sm:text-lg">Преобразуйте изображения между 40+ форматами</p>
         </header>
 
         <main class="max-w-2xl mx-auto">
-                        <!-- Кнопка пожаловаться на баг -->
-                        <div class="text-right mb-4">
-                            <button id="bugReportBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors font-medium"><i class="fas fa-bug mr-2"></i>Пожаловаться на баг</button>
-                        </div>
+                        <!-- Кнопка перемещена в header -->
                 <!-- Модальное окно для фидбека -->
                 <div id="bugModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
                     <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">

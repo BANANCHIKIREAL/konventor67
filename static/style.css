@@ -1,3 +1,11 @@
+/* Анимация для кнопки баг-репорта */
+#bugReportBtn {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+#bugReportBtn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.15);
+}
 #themeToggle {
     transition: all 0.3s ease;
 }
