@@ -218,7 +218,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 resetPreview();
                 return;
             }
-            
+
+            // Автоматически выделять radio по расширению
+            const ext = file.name.split('.').pop().toLowerCase();
+            const radio = document.querySelector(`input[name="format"][value="${ext}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+
             // Check file size before processing
             const maxSize = isMobile() ? 5 * 1024 * 1024 : 16 * 1024 * 1024;
             if (file.size > maxSize) {
@@ -226,21 +233,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 resetPreview();
                 return;
             }
-            
+
             const reader = new FileReader();
-            
+
             reader.onload = function(e) {
                 previewImage.src = e.target.result;
                 fileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)';
                 previewContainer.classList.remove('hidden');
                 checkFormValidity();
             };
-            
+
             reader.onerror = function() {
                 showErrorMessage('Ошибка при чтении файла');
                 resetPreview();
             };
-            
+
             reader.readAsDataURL(file);
         } else {
             resetPreview();

@@ -104,6 +104,22 @@
         </header>
 
         <main class="max-w-2xl mx-auto">
+                        <!-- Кнопка пожаловаться на баг -->
+                        <div class="text-right mb-4">
+                            <button id="bugReportBtn" class="bg-red-100 text-red-700 px-4 py-2 rounded hover:bg-red-200 transition-colors font-medium"><i class="fas fa-bug mr-2"></i>Пожаловаться на баг</button>
+                        </div>
+                <!-- Модальное окно для фидбека -->
+                <div id="bugModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+                    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md relative">
+                        <button id="closeBugModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+                        <h2 class="text-lg font-bold mb-2 text-red-700"><i class="fas fa-bug mr-2"></i>Сообщить о проблеме</h2>
+                        <form id="bugForm">
+                            <textarea id="bugText" class="w-full border rounded p-2 mb-3" rows="4" placeholder="Опишите ошибку или проблему..."></textarea>
+                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">Отправить</button>
+                        </form>
+                        <div id="bugThanks" class="hidden text-green-600 mt-2">Спасибо за ваш фидбек!</div>
+                    </div>
+                </div>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     {% for message in messages %}
@@ -374,5 +390,29 @@
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+    // Модалка для баг-репорта
+    const bugBtn = document.getElementById('bugReportBtn');
+    const bugModal = document.getElementById('bugModal');
+    const closeBugModal = document.getElementById('closeBugModal');
+    const bugForm = document.getElementById('bugForm');
+    const bugThanks = document.getElementById('bugThanks');
+    if (bugBtn && bugModal && closeBugModal && bugForm && bugThanks) {
+        bugBtn.onclick = () => { bugModal.classList.remove('hidden'); bugThanks.classList.add('hidden'); };
+        closeBugModal.onclick = () => { bugModal.classList.add('hidden'); };
+        bugForm.onsubmit = (e) => {
+            e.preventDefault();
+            const text = document.getElementById('bugText').value;
+            fetch('/bug_report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            bugThanks.classList.remove('hidden');
+            setTimeout(() => { bugModal.classList.add('hidden'); }, 1500);
+        };
+        bugModal.onclick = (e) => { if (e.target === bugModal) bugModal.classList.add('hidden'); };
+    }
+    </script>
 </body>
 </html>

@@ -1,3 +1,6 @@
+import requests
+from flask import Flask, render_template, request, send_file, flash, redirect, url_for
+import requests
 from flask import Flask, render_template, request, send_file, flash, redirect, url_for
 import os
 import tempfile
@@ -6,20 +9,40 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import numpy as np
 
+# Supported file extensions
+ALLOWED_EXTENSIONS = {
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif', 'ico', 'cur',
+    'pdf', 'psd', 'eps', 'svg', 'tga', 'jp2', 'j2k', 'jpf', 'jpx', 'pgm',
+    'pbm', 'pnm', 'ppm', 'rgb', 'xbm', 'xpm'
+}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
-ALLOWED_EXTENSIONS = {
-    'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'ico', 'cur',
-    'ppm', 'pgm', 'pbm', 'pnm', 'psd', 'eps', 'pdf', 'svg', 'tga', 
-    'jp2', 'j2k', 'jpf', 'jpx', 'pcx', 'dib', 'fpx', 'iff', 'lbm', 
-    'sgi', 'rgb', 'rgba', 'bw', 'ras', 'sun', 'xbm', 'xpm', 'im', 
-    'msp', 'pcd', 'cut', 'gbr', 'pat', 'pct', 'pic', 'pict', 
-    'png', 'pns', 'psp', 'pxr', 'sct', 'tga', 'tif', 'wmf', 'emf'
-}
+TELEGRAM_BOT_TOKEN = '7963547843:AAGMRJFet7QwR-hhScjTsuHSFJ3F4OOalXc'
+TELEGRAM_CHAT_ID = '8015421805'
 
-def allowed_file(filename):
+# === Bug report endpoint (Telegram) ===
+@app.route('/bug_report', methods=['POST'])
+def bug_report():
+    data = request.get_json()
+    text = data.get('text', '').strip()
+    if not text:
+        return {'error': 'Empty report'}, 400
+    msg = f"🐞 Bug report (konventor):\n{text}"
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {'chat_id': TELEGRAM_CHAT_ID, 'text': msg}
+    try:
+        r = requests.post(url, data=payload, timeout=5)
+        if r.status_code == 200:
+            return {'ok': True}
+        return {'error': 'Failed to send'}, 500
+    except Exception as e:
+        return {'error': str(e)}, 500
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
