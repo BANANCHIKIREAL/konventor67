@@ -4,4 +4,3 @@ waitress
 Pillow
 numpy
 requests
-ffmpeg-python
