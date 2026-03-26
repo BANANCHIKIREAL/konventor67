@@ -6,14 +6,13 @@ from io import BytesIO
 from werkzeug.utils import secure_filename
 from PIL import Image
 import numpy as np
-# import ffmpeg  # Временно отключено для Render
+import ffmpeg
 
 # Supported file extensions
 ALLOWED_EXTENSIONS = {
     'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff', 'tif', 'ico', 'cur',
     'pdf', 'psd', 'eps', 'svg', 'tga', 'jp2', 'j2k', 'jpf', 'jpx', 'pgm',
-    'pbm', 'pnm', 'ppm', 'rgb', 'xbm', 'xpm'
-    # 'wav', 'mp3', 'ogg', 'flac', 'aac', 'm4a'  # Временно отключено для Render
+    'pbm', 'pnm', 'ppm', 'rgb', 'xbm', 'xpm', 'wav', 'mp3', 'ogg', 'flac', 'aac', 'm4a'
 }
 
 def allowed_file(filename):
@@ -76,6 +75,51 @@ def convert_image():
         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as temp_file:
             file.save(temp_file.name)
             temp_input = temp_file.name
+        
+        # Check if it's an audio file
+        audio_formats = {'wav', 'mp3', 'ogg', 'flac', 'aac', 'm4a'}
+        file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+        
+        if file_ext in audio_formats:
+            # Handle audio conversion using ffmpeg-python
+            try:
+                # Convert to requested format using ffmpeg
+                if format_type == 'wav':
+                    ffmpeg.input(temp_input).output(temp_output, format='wav').run(overwrite_output=True)
+                elif format_type == 'mp3':
+                    ffmpeg.input(temp_input).output(temp_output, format='mp3', audio_bitrate='192k').run(overwrite_output=True)
+                elif format_type == 'ogg':
+                    ffmpeg.input(temp_input).output(temp_output, format='libvorbis').run(overwrite_output=True)
+                elif format_type == 'flac':
+                    ffmpeg.input(temp_input).output(temp_output, format='flac').run(overwrite_output=True)
+                elif format_type in ['aac', 'm4a']:
+                    ffmpeg.input(temp_input).output(temp_output, format='aac').run(overwrite_output=True)
+                else:
+                    return {'error': 'Unsupported audio format'}, 400
+                
+                # Send file for download
+                response = send_file(
+                    temp_output,
+                    mimetype=f'audio/{format_type}',
+                    as_attachment=True,
+                    download_name=f'converted.{format_type}'
+                )
+                
+                # Clean up temp files
+                try:
+                    os.remove(temp_input)
+                    os.remove(temp_output)
+                except:
+                    pass
+                
+                return response
+                
+            except Exception as e:
+                print(f'Audio conversion error: {str(e)}')
+                # Check if ffmpeg is missing
+                if 'ffmpeg' in str(e).lower() or 'not found' in str(e).lower() or 'No such file or directory' in str(e):
+                    return {'error': 'Audio conversion not available on this server. FFmpeg is required for audio conversion.'}, 500
+                return {'error': f'Audio conversion failed: {str(e)}'}, 500
         
         # Convert image using PIL
         img = Image.open(temp_input)
@@ -184,12 +228,12 @@ def convert_image():
             'rgb': 'SGI',
             'xbm': 'XBM',
             'xpm': 'XPM',
-            # 'wav': 'wav',  # Временно отключено для Render
-            # 'mp3': 'mp3',
-            # 'ogg': 'ogg',
-            # 'flac': 'flac',
-            # 'aac': 'aac',
-            # 'm4a': 'aac'
+            'wav': 'wav',
+            'mp3': 'mp3',
+            'ogg': 'ogg',
+            'flac': 'flac',
+            'aac': 'aac',
+            'm4a': 'aac'
         }
         
         # Formats that need to be converted to PNG if not supported
