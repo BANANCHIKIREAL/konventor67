@@ -118,6 +118,9 @@ def convert_image():
                 
             except Exception as e:
                 print(f'Audio conversion error: {str(e)}')
+                # Check if ffmpeg is missing
+                if 'ffmpeg' in str(e).lower() or 'pyaudioop' in str(e).lower():
+                    return {'error': 'Audio conversion not available on this server. Please contact administrator to install ffmpeg.'}, 500
                 return {'error': f'Audio conversion failed: {str(e)}'}, 500
         
         # Convert image using PIL

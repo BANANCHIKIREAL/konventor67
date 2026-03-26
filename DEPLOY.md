@@ -59,7 +59,7 @@ python app.py
 ```bash
 # Установка на Ubuntu/Debian
 sudo apt update
-sudo apt install python3 python3-pip nginx
+sudo apt install python3 python3-pip nginx ffmpeg
 
 # Клонирование проекта
 git clone <your-repo>
@@ -124,6 +124,9 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
+# Установка ffmpeg для аудио
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -157,9 +160,10 @@ docker-compose up -d
 2. Подключите GitHub репозиторий
 3. Создайте новый Web Service
 4. Укажите:
-   - Build Command: `pip install -r requirements.txt`
+   - Build Command: `pip install -r requirements.txt && apt-get update && apt-get install -y ffmpeg`
    - Start Command: `gunicorn app:app`
    - Runtime: Python 3
+   - Environment Variables: добавьте `FFMPEG_PATH=/usr/bin/ffmpeg`
 
 ## Настройка для продакшена
 
