@@ -48,27 +48,10 @@
                 <a href="/" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
                     <i class="fas fa-home mr-2"></i>Главная
                 </a>
-                <button id="uploadBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
-                    <i class="fas fa-upload mr-2"></i>Загрузить файл
-                </button>
             </div>
         </header>
 
         <main class="max-w-4xl mx-auto">
-            <!-- Форма загрузки -->
-            <div class="bg-white rounded-lg shadow-xl p-6 mb-8">
-                <form id="uploadForm" class="space-y-4">
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors" id="dropZone">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                        <p class="text-gray-600 mb-2">Перетащите файл сюда или нажмите для выбора</p>
-                        <input type="file" name="file" id="fileInput" class="hidden" required>
-                        <button type="button" id="browseBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
-                            <i class="fas fa-folder-open mr-2"></i>Выбрать файл
-                        </button>
-                    </div>
-                </form>
-            </div>
-
             <!-- Список файлов -->
             <div class="bg-white rounded-lg shadow-xl p-6">
                 <h2 class="text-2xl font-bold mb-4">
@@ -101,89 +84,5 @@
             </div>
         </main>
     </div>
-
-    <script>
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-        const browseBtn = document.getElementById('browseBtn');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const uploadForm = document.getElementById('uploadForm');
-
-        // Обработчики событий
-        browseBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', handleFileSelect);
-        uploadBtn.addEventListener('click', () => fileInput.click());
-
-        // Drag and drop
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                handleFileSelect({ target: { files } });
-            }
-        });
-
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (file) {
-                uploadFile(file);
-            }
-        }
-
-        function uploadFile(file) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            // Показываем индикатор загрузки
-            dropZone.innerHTML = `
-                <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
-                <p class="text-gray-600">Загрузка файла...</p>
-            `;
-
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    location.reload(); // Перезагружаем страницу чтобы показать новый файл
-                } else {
-                    alert('Ошибка: ' + data.error);
-                }
-            })
-            .catch(error => {
-                alert('Ошибка загрузки: ' + error.message);
-            })
-            .finally(() => {
-                // Восстанавливаем исходный вид dropZone
-                dropZone.innerHTML = `
-                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
-                    <p class="text-gray-600 mb-2">Перетащите файл сюда или нажмите для выбора</p>
-                    <input type="file" name="file" id="fileInput" class="hidden" required>
-                    <button type="button" id="browseBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
-                        <i class="fas fa-folder-open mr-2"></i>Выбрать файл
-                    </button>
-                `;
-                
-                // Переназначаем обработчики событий
-                document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-                document.getElementById('browseBtn').addEventListener('click', () => fileInput.click());
-            });
-        }
-    </script>
 </body>
 </html>
