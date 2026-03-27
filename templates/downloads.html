@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузки - Конвертер</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        html.dark {
+            color-scheme: dark;
+        }
+        
+        html.dark body {
+            background: linear-gradient(to bottom right, #1a1a2e, #16213e);
+            color: #e0e0e0;
+        }
+        
+        html.dark .bg-white {
+            background-color: #2a2a3e;
+            color: #e0e0e0;
+        }
+        
+        html.dark .text-gray-800 {
+            color: #e0e0e0;
+        }
+        
+        html.dark .text-gray-600 {
+            color: #b0b0c0;
+        }
+        
+        html.dark .border-gray-200 {
+            border-color: #3a3a4a;
+        }
+        
+        html.dark .hover\:bg-gray-50:hover {
+            background-color: #3a3a4a;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-download mr-2"></i>Загрузки
+            </h1>
+            <div class="flex justify-center gap-4">
+                <a href="/" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+                    <i class="fas fa-home mr-2"></i>Главная
+                </a>
+                <button id="uploadBtn" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    <i class="fas fa-upload mr-2"></i>Загрузить файл
+                </button>
+            </div>
+        </header>
+
+        <main class="max-w-4xl mx-auto">
+            <!-- Форма загрузки -->
+            <div class="bg-white rounded-lg shadow-xl p-6 mb-8">
+                <form id="uploadForm" class="space-y-4">
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-500 transition-colors" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-600 mb-2">Перетащите файл сюда или нажмите для выбора</p>
+                        <input type="file" name="file" id="fileInput" class="hidden" required>
+                        <button type="button" id="browseBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
+                            <i class="fas fa-folder-open mr-2"></i>Выбрать файл
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Список файлов -->
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <h2 class="text-2xl font-bold mb-4">
+                    <i class="fas fa-folder-open mr-2"></i>Доступные файлы
+                </h2>
+                
+                {% if files %}
+                <div class="space-y-2">
+                    {% for file in files %}
+                    <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center">
+                            <i class="fas fa-file text-2xl text-blue-500 mr-4"></i>
+                            <div>
+                                <p class="font-medium text-gray-800">{{ file.name }}</p>
+                                <p class="text-sm text-gray-600">{{ file.size_human }}</p>
+                            </div>
+                        </div>
+                        <a href="/download/{{ file.name }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download mr-2"></i>Скачать
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-folder-open text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600">Файлы пока не загружены</p>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const browseBtn = document.getElementById('browseBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // Обработчики событий
+        browseBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadBtn.addEventListener('click', () => fileInput.click());
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect({ target: { files } });
+            }
+        });
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                uploadFile(file);
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Показываем индикатор загрузки
+            dropZone.innerHTML = `
+                <i class="fas fa-spinner fa-spin text-4xl text-indigo-600 mb-4"></i>
+                <p class="text-gray-600">Загрузка файла...</p>
+            `;
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload(); // Перезагружаем страницу чтобы показать новый файл
+                } else {
+                    alert('Ошибка: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Ошибка загрузки: ' + error.message);
+            })
+            .finally(() => {
+                // Восстанавливаем исходный вид dropZone
+                dropZone.innerHTML = `
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-600 mb-2">Перетащите файл сюда или нажмите для выбора</p>
+                    <input type="file" name="file" id="fileInput" class="hidden" required>
+                    <button type="button" id="browseBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-folder-open mr-2"></i>Выбрать файл
+                    </button>
+                `;
+                
+                // Переназначаем обработчики событий
+                document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+                document.getElementById('browseBtn').addEventListener('click', () => fileInput.click());
+            });
+        }
+    </script>
+</body>
+</html>

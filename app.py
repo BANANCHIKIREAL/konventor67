@@ -1,6 +1,7 @@
 import requests
-from flask import Flask, render_template, request, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, send_file, flash, redirect, url_for, send_from_directory
 import os
+import time
 import tempfile
 from io import BytesIO
 from werkzeug.utils import secure_filename
@@ -21,6 +22,12 @@ def allowed_file(filename):
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-in-production')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# Настройки для загрузки файлов
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 TELEGRAM_BOT_TOKEN = '7963547843:AAGMRJFet7QwR-hhScjTsuHSFJ3F4OOalXc'
 TELEGRAM_CHAT_ID = '8015421805'
@@ -47,6 +54,67 @@ def bug_report():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    try:
+        if 'file' not in request.files:
+            return {'error': 'No file provided'}, 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return {'error': 'No file selected'}, 400
+        
+        if not allowed_file(file.filename):
+            return {'error': 'File type not allowed'}, 400
+        
+        # Сохраняем файл в директорию uploads
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Если файл уже существует, добавляем timestamp
+        if os.path.exists(file_path):
+            name, ext = os.path.splitext(filename)
+            timestamp = int(time.time())
+            filename = f"{name}_{timestamp}{ext}"
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        file.save(file_path)
+        
+        return {
+            'success': True,
+            'filename': filename,
+            'message': f'Файл {filename} успешно загружен на сервер'
+        }
+    
+    except Exception as e:
+        return {'error': f'Upload failed: {str(e)}'}, 500
+
+@app.route('/downloads')
+def downloads():
+    try:
+        files = []
+        for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.isfile(file_path):
+                size = os.path.getsize(file_path)
+                files.append({
+                    'name': filename,
+                    'size': size,
+                    'size_human': f"{size / (1024*1024):.2f} MB" if size > 1024*1024 else f"{size / 1024:.2f} KB"
+                })
+        
+        return render_template('downloads.html', files=files)
+    
+    except Exception as e:
+        return f'Error: {str(e)}', 500
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    try:
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+    except Exception as e:
+        return f'Error downloading file: {str(e)}', 500
 
 @app.route('/convert', methods=['POST'])
 def convert_image():
