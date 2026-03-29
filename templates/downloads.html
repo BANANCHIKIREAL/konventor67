@@ -63,6 +63,9 @@
                     {% for file in files %}
                     <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                         <div class="flex items-center">
+                            {% if file.name == "MusicStreamer_v1.3.zip" %}
+                            <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full font-bold mr-3">UPDATE</span>
+                            {% endif %}
                             <i class="fas fa-file text-2xl text-blue-500 mr-4"></i>
                             <div>
                                 <p class="font-medium text-gray-800">{{ file.name }}</p>
