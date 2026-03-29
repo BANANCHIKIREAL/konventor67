@@ -55,67 +55,6 @@ def bug_report():
 def index():
     return render_template('index.html')
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    try:
-        if 'file' not in request.files:
-            return {'error': 'No file provided'}, 400
-        
-        file = request.files['file']
-        if file.filename == '':
-            return {'error': 'No file selected'}, 400
-        
-        if not allowed_file(file.filename):
-            return {'error': 'File type not allowed'}, 400
-        
-        # Сохраняем файл в директорию uploads
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        # Если файл уже существует, добавляем timestamp
-        if os.path.exists(file_path):
-            name, ext = os.path.splitext(filename)
-            timestamp = int(time.time())
-            filename = f"{name}_{timestamp}{ext}"
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        file.save(file_path)
-        
-        return {
-            'success': True,
-            'filename': filename,
-            'message': f'Файл {filename} успешно загружен на сервер'
-        }
-    
-    except Exception as e:
-        return {'error': f'Upload failed: {str(e)}'}, 500
-
-@app.route('/downloads')
-def downloads():
-    try:
-        files = []
-        for filename in os.listdir(app.config['UPLOAD_FOLDER']):
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            if os.path.isfile(file_path):
-                size = os.path.getsize(file_path)
-                files.append({
-                    'name': filename,
-                    'size': size,
-                    'size_human': f"{size / (1024*1024):.2f} MB" if size > 1024*1024 else f"{size / 1024:.2f} KB"
-                })
-        
-        return render_template('downloads.html', files=files)
-    
-    except Exception as e:
-        return f'Error: {str(e)}', 500
-
-@app.route('/download/<filename>')
-def download_file(filename):
-    try:
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
-    except Exception as e:
-        return f'Error downloading file: {str(e)}', 500
-
 @app.route('/convert', methods=['POST'])
 def convert_image():
     try:
